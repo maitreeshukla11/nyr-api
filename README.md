@@ -1,2 +1,2 @@
 # nyr-api
-New Year Resolutions Tracker API built with C#
+New Year Resolutions Tracker API built with C# and .NET
