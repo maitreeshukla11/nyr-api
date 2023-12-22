@@ -41,6 +41,17 @@ namespace nyr_api.Controllers
             return nYRItem;
         }
 
+        // GET: api/NYRItems/GetByUsername/{username}
+        [HttpGet("GetByUsername/{username}")]
+        public async Task<ActionResult<IEnumerable<NYRItem>>> GetNYRItemsByUsername(string username)
+        {
+            var nYRItems = await _context.NYRItems
+                                        .Where(item => item.Username == username.ToLower())
+                                        .ToListAsync();
+
+            return nYRItems;
+        }
+
         // PUT: api/NYRItems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -72,15 +83,102 @@ namespace nyr_api.Controllers
             return NoContent();
         }
 
-        // POST: api/NYRItems
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+                // PUT: api/NYRItems/PutCheckIn
+        [HttpPut("PutCheckIn")]
+        public async Task<IActionResult> PutCheckIn([FromBody] CheckInUpdateRequest request)
+        {
+            var nYRItem = await _context.NYRItems.FindAsync(request.Id);
+
+            if (nYRItem == null)
+            {
+                return NotFound();
+            }
+
+            // Calculate index based on Cadence and Date
+            int index = CalculateCheckInIndex(nYRItem.Cadence, request.Date);
+
+            // Update the CheckIn array at the calculated index
+            if (index >= 0 && index < nYRItem.CheckIn.Length)
+            {
+                nYRItem.CheckIn[index] = request.Value;
+            }
+            else
+            {
+                return BadRequest("Invalid index calculation");
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!NYRItemExists(request.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        private int CalculateCheckInIndex(string cadence, DateTime date)
+        {
+            switch (cadence.ToUpper())
+            {
+                case "DAILY":
+                    return (date - new DateTime(date.Year, 1, 1)).Days;
+                case "WEEKLY":
+                    return (date - new DateTime(date.Year, 1, 1)).Days / 7;
+                case "MONTHLY":
+                    return (date.Month - 1);
+                default:
+                    throw new ArgumentException("Invalid Cadence value");
+            }
+        }
+
+        public class CheckInUpdateRequest
+        {
+            public long Id { get; set; }
+            public DateTime Date { get; set; }
+            public bool Value { get; set; }
+        }
+
+
+       // POST: api/NYRItems
+    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<NYRItem>> PostNYRItem(NYRItem nYRItem)
         {
+            // Calculate CheckIn array based on Cadence
+            nYRItem.CheckIn = CalculateCheckInArray(nYRItem.Cadence);
+
+            nYRItem.Username = nYRItem.Username.ToLower();
+
             _context.NYRItems.Add(nYRItem);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetNYRItem", new { id = nYRItem.Id }, nYRItem);
+        }
+
+        // Helper method to calculate CheckIn array based on Cadence
+        private bool[] CalculateCheckInArray(string cadence)
+        {
+            switch (cadence.ToUpper())
+            {
+                case "DAILY":
+                    return new bool[365];
+                case "WEEKLY":
+                    return new bool[52];
+                case "MONTHLY":
+                    return new bool[12];
+                default:
+                    throw new ArgumentException("Invalid Cadence value");
+            }
         }
 
         // DELETE: api/NYRItems/5
