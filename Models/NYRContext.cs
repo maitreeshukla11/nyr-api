@@ -9,5 +9,5 @@ public class NYRContext : DbContext
     {
     }
 
-    public DbSet<NYRItem> NYRItems { get; set; } = null!;
+    public DbSet<NYREvent> NYREvents { get; set; } = null!;
 }

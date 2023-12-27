@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("nyr-api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5533665fceadfd7dbc1e947582f05bc236deeba1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d66d03c0e620a1ab4565087de4acb0f3d0d77bc9")]
 [assembly: System.Reflection.AssemblyProductAttribute("nyr-api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("nyr-api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

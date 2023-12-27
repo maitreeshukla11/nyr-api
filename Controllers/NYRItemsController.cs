@@ -20,18 +20,18 @@ namespace nyr_api.Controllers
             _context = context;
         }
 
-        // GET: api/NYRItems
+        // GET: api/NYREvents
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<NYRItem>>> GetNYRItems()
+        public async Task<ActionResult<IEnumerable<NYREvent>>> GetNYREvents()
         {
-            return await _context.NYRItems.ToListAsync();
+            return await _context.NYREvents.ToListAsync();
         }
 
-        // GET: api/NYRItems/5
+        // GET: api/NYREvents/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<NYRItem>> GetNYRItem(long id)
+        public async Task<ActionResult<NYREvent>> GetNYREvents(long id)
         {
-            var nYRItem = await _context.NYRItems.FindAsync(id);
+            var nYRItem = await _context.NYREvents.FindAsync(id);
 
             if (nYRItem == null)
             {
@@ -41,71 +41,29 @@ namespace nyr_api.Controllers
             return nYRItem;
         }
 
-        // GET: api/NYRItems/GetByUsername/{username}
+        // GET: api/NYREvents/GetByUsername/{username}
         [HttpGet("GetByUsername/{username}")]
-        public async Task<ActionResult<IEnumerable<NYRItem>>> GetNYRItemsByUsername(string username)
+        public async Task<ActionResult<IEnumerable<NYREvent>>> GetNYREventsByUsername(string username)
         {
-            var nYRItems = await _context.NYRItems
+            var NYREvents = await _context.NYREvents
                                         .Where(item => item.Username == username.ToLower())
                                         .ToListAsync();
 
-            return nYRItems;
+            return NYREvents;
         }
 
-        // PUT: api/NYRItems/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutNYRItem(long id, NYRItem nYRItem)
-        {
-            if (id != nYRItem.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(nYRItem).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!NYRItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-                // PUT: api/NYRItems/PutCheckIn
+        // PUT: api/NYRItems/PutCheckIn
         [HttpPut("PutCheckIn")]
         public async Task<IActionResult> PutCheckIn([FromBody] CheckInUpdateRequest request)
         {
-            var nYRItem = await _context.NYRItems.FindAsync(request.Id);
+            var NYREvent = await _context.NYREvents.FindAsync(request.Id);
 
-            if (nYRItem == null)
+            if (NYREvent == null)
             {
                 return NotFound();
             }
 
-            // Calculate index based on Cadence and Date
-            int index = CalculateCheckInIndex(nYRItem.Cadence, request.Date);
-
-            // Update the CheckIn array at the calculated index
-            if (index >= 0 && index < nYRItem.CheckIn.Length)
-            {
-                nYRItem.CheckIn[index] = request.Value;
-            }
-            else
-            {
-                return BadRequest("Invalid index calculation");
-            }
+            NYREvent.CheckIn = request.Value;
 
             try
             {
@@ -113,7 +71,7 @@ namespace nyr_api.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!NYRItemExists(request.Id))
+                if (!NYREventExists(request.Id))
                 {
                     return NotFound();
                 }
@@ -123,83 +81,100 @@ namespace nyr_api.Controllers
                 }
             }
 
-            return NoContent();
-        }
-
-        private int CalculateCheckInIndex(string cadence, DateTime date)
-        {
-            switch (cadence.ToUpper())
-            {
-                case "DAILY":
-                    return (date - new DateTime(date.Year, 1, 1)).Days;
-                case "WEEKLY":
-                    return (date - new DateTime(date.Year, 1, 1)).Days / 7;
-                case "MONTHLY":
-                    return (date.Month - 1);
-                default:
-                    throw new ArgumentException("Invalid Cadence value");
-            }
+            return Ok(NYREvent);
         }
 
         public class CheckInUpdateRequest
         {
             public long Id { get; set; }
-            public DateTime Date { get; set; }
             public bool Value { get; set; }
         }
 
 
        // POST: api/NYRItems
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<NYRItem>> PostNYRItem(NYRItem nYRItem)
         {
-            // Calculate CheckIn array based on Cadence
-            nYRItem.CheckIn = CalculateCheckInArray(nYRItem.Cadence);
 
-            nYRItem.Username = nYRItem.Username.ToLower();
-
-            _context.NYRItems.Add(nYRItem);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetNYRItem", new { id = nYRItem.Id }, nYRItem);
-        }
-
-        // Helper method to calculate CheckIn array based on Cadence
-        private bool[] CalculateCheckInArray(string cadence)
-        {
-            switch (cadence.ToUpper())
+            // Create NYREvents based on the cadence
+            switch (nYRItem.Cadence.ToUpper())
             {
                 case "DAILY":
-                    return new bool[365];
+                    CreateDailyEvents(nYRItem);
+                    break;
                 case "WEEKLY":
-                    return new bool[52];
+                    CreateWeeklyEvents(nYRItem);
+                    break;
                 case "MONTHLY":
-                    return new bool[12];
+                    CreateMonthlyEvents(nYRItem);
+                    break;
                 default:
                     throw new ArgumentException("Invalid Cadence value");
             }
-        }
 
-        // DELETE: api/NYRItems/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteNYRItem(long id)
-        {
-            var nYRItem = await _context.NYRItems.FindAsync(id);
-            if (nYRItem == null)
-            {
-                return NotFound();
-            }
-
-            _context.NYRItems.Remove(nYRItem);
             await _context.SaveChangesAsync();
-
-            return NoContent();
+            return CreatedAtAction("GetNYREventsByUsername", new { username = nYRItem.Username }, nYRItem);
         }
 
-        private bool NYRItemExists(long id)
+        private void CreateDailyEvents(NYRItem nYRItem)
         {
-            return _context.NYRItems.Any(e => e.Id == id);
+            DateTime startDate = new DateTime(2024, 1, 1);
+            for (int i = 0; i < 366; i++)
+            {
+                var newEvent = new NYREvent
+                {
+                    Username = nYRItem.Username,
+                    GoalText = nYRItem.GoalText,
+                    StartDate = startDate.AddDays(i),
+                    EndDate = startDate.AddDays(i + 1),
+                    CheckIn = false
+                };
+                _context.NYREvents.Add(newEvent);
+            }
+        }
+
+        private void CreateWeeklyEvents(NYRItem nYRItem)
+        {
+            DateTime startDate = new DateTime(2023, 12, 31);
+            for (int i = 0; i < 52; i++)
+            {
+                var newEvent = new NYREvent
+                {
+                    Username = nYRItem.Username,
+                    GoalText = nYRItem.GoalText,
+                    StartDate = startDate.AddDays(i * 7),
+                    EndDate = startDate.AddDays((i + 1) * 7),
+                    CheckIn = false
+                };
+                _context.NYREvents.Add(newEvent);
+            }
+        }
+
+        private void CreateMonthlyEvents(NYRItem nYRItem)
+        {
+            DateTime startDate = new DateTime(2024, 1, 1);
+            for (int i = 0; i < 12; i++)
+            {
+                var lastDayOfMonth = new DateTime(startDate.Year, startDate.Month, DateTime.DaysInMonth(startDate.Year, startDate.Month));
+                var newEvent = new NYREvent
+                {
+                    Username = nYRItem.Username,
+                    GoalText = nYRItem.GoalText,
+                    StartDate = startDate,
+                    EndDate = lastDayOfMonth.AddDays(1),
+                    CheckIn = false
+                };
+                _context.NYREvents.Add(newEvent);
+
+                startDate = startDate.AddMonths(1);
+            }
+        }
+
+
+        private bool NYREventExists(long id)
+        {
+            return _context.NYREvents.Any(e => e.Id == id);
         }
     }
 }
