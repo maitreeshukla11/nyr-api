@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "N3d5Lmk7KssSPzn4FTpngH2pTsBchBZBhDYA9BqgJk0=",
+  "Source": "nyr-api-serverless",
+  "BasePath": "_content/nyr-api-serverless",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

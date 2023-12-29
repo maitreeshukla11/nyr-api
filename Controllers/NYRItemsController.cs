@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using nyr_api.Models;
+using nyr_api_serverless.Models;
 
-namespace nyr_api.Controllers
+namespace nyr_api_serverless.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

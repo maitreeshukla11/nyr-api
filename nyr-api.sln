@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nyr-api", "nyr-api.csproj", "{DCCB01F7-C40E-4032-96D5-20E17346E8DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nyr-api-serverless", "nyr-api-serverless.csproj", "{38DF9508-DD87-4946-89F0-6C1448F5E6DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DCCB01F7-C40E-4032-96D5-20E17346E8DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DCCB01F7-C40E-4032-96D5-20E17346E8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DCCB01F7-C40E-4032-96D5-20E17346E8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DCCB01F7-C40E-4032-96D5-20E17346E8DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38DF9508-DD87-4946-89F0-6C1448F5E6DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38DF9508-DD87-4946-89F0-6C1448F5E6DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38DF9508-DD87-4946-89F0-6C1448F5E6DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38DF9508-DD87-4946-89F0-6C1448F5E6DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {91D89043-5A5F-4306-B7CF-CFF14B5CD46F}
+		SolutionGuid = {CF8E6E7E-A8F5-48A5-8663-ABEBBD9F880E}
 	EndGlobalSection
 EndGlobal

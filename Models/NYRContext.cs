@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace nyr_api.Models;
+namespace nyr_api_serverless.Models;
 
 public class NYRContext : DbContext
 {

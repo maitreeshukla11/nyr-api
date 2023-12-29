@@ -1,9 +1,9 @@
-namespace nyr_api.Models;
+namespace nyr_api_serverless.Models;
 
 public class NYRItem
 {
-    public required string Username {get; set; }
-    public required string GoalText { get; set; }
-    public required string Cadence {get; set; }
+    public string Username {get; set; }
+    public string GoalText { get; set; }
+    public string Cadence {get; set; }
 
 }
